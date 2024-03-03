@@ -28,7 +28,7 @@ resource "aws_security_group" "Jenkins-sg" {
   }
 }
 
-resource "aws_instance" "web" {
+resource "aws_instance" "Jenkins" {
   ami                    = "ami-03bb6d83c60fc5f7c"
   instance_type          = "t2.medium"
   key_name               = "webapp"
@@ -36,9 +36,24 @@ resource "aws_instance" "web" {
   user_data              = templatefile("./install_jenkins.sh", {})
 
   tags = {
-    Name = "Jenkins-sonar"
+    Name = "Jenkins-server"
   }
   root_block_device {
-    volume_size = 30
+    volume_size = 20
+  }
+}
+
+resource "aws_instance" "Sonar" {
+  ami                    = "ami-03bb6d83c60fc5f7c"
+  instance_type          = "t2.medium"
+  key_name               = "webapp"
+  vpc_security_group_ids = [aws_security_group.Jenkins-sg.id]
+  user_data              = templatefile("./install_sonar.sh", {})
+
+  tags = {
+    Name = "Sonar-server"
+  }
+  root_block_device {
+    volume_size = 20
   }
 }
